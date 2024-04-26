@@ -1,0 +1,19 @@
+
+
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	<persistence-unit name="image-unit">
+	<jta-data-source>jdbc/image_model</jta-data-source>
+		<mapping-file>META-INF/orm.xml</mapping-file>
+			<properties>
+			
+			<!-- for deployment phase -->
+	  <property name="jakarta.persistence.schema-generation.database.action"
+                      value="drop-and-create"/>
+                      
+                      
+     
+	</properties>
+	</persistence-unit>
+</persistence>
