@@ -1,7 +1,7 @@
 package com.casi.ws.image.resource;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.casi.ws.image.dao.ImageDao;
@@ -15,6 +15,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 
 @Path("/")
 public class VerificationResource {
@@ -24,11 +25,11 @@ public class VerificationResource {
 	private ImageDao imageDao;
 
 	@GET
-	@Path("image/{id}")
+	@Path("verify/{ownerClass}/image/{ownerKey}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Image findImage(@PathParam("id") String id) {
+	public Image findImage(@PathParam("ownerClass") String oClass, @PathParam("ownerKey") String oKey) {
 		logger.info("fetching record");
-		Image image = imageDao.find(id);
+		Image image = imageDao.find(oKey, oClass);
 
 		if (image == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -37,25 +38,29 @@ public class VerificationResource {
 	}
 
 	@GET
-	@Path("image/data/{id}")
+	@Path("verify/{ownerClass}/image/data/{ownerKey}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public byte[] findImageData(@PathParam("id") String id) {
+	public StreamingOutput findImageData(@PathParam("ownerClass") String oClass, @PathParam("ownerKey") String oKey) {
 		logger.info("fetching record");
-		Image image = imageDao.find(id);
+		Image image = imageDao.find(oKey, oClass);
 
 		if (image != null && image.getData() != null) {
-			return image.getData();
+			return outputStream -> {
+				try {
+					// automatically flush
+					outputStream.write(image.getData());
+
+				} catch (IOException e) {
+					throw new WebApplicationException("Error streaming image data", e,
+							Response.Status.INTERNAL_SERVER_ERROR);
+				}
+			};
+			
 		}
-		return new byte[] { 0x00 };
+		throw new WebApplicationException(Response.Status.NOT_FOUND);
 
 	}
 
-	@GET
-	@Path("images/{ownerClass}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<Image> findImages(@PathParam("ownerClass") String ownerClass) {
-		return imageDao.findAll(ownerClass);
 
-	}
-
+	
 }

@@ -58,10 +58,17 @@ public class ImageDao {
 
 	}
 
-	public Image find(String id) {
+	/**
+	 * 
+	 * @param oKey   - String
+	 * @param oClass - String
+	 * @return Image object
+	 */
+	public Image find(String oKey, String oClass) {
 		try {
-			return em.createQuery("select u from " + Image.NAME + " u where u.ownerKey = :id", Image.class)
-					.setParameter("id", id).getSingleResult();
+			return em.createQuery(
+					"select u from " + Image.NAME + " u where u.ownerKey = :oKey and u.ownerClass = :oClass",
+					Image.class).setParameter("oKey", oKey).setParameter("oClass", oClass).getSingleResult();
 
 		} catch (IllegalArgumentException e) {
 			return null;
@@ -80,6 +87,11 @@ public class ImageDao {
 		}
 	}
 
+	/**
+	 * 
+	 * @param ownerClass - String
+	 * @return List of image objects
+	 */
 	public List<Image> findAll(String ownerClass) {
 		try {
 			return em.createQuery("select u from " + Image.NAME + " u where u.ownerClass = :ownerClass", Image.class)

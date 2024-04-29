@@ -3,15 +3,17 @@
 	<featureManager>
 		<feature>webProfile-10.0</feature>
 		<feature>jdbc-4.3</feature>
+		<feature>transportSecurity-1.0</feature>
 	</featureManager>
 
 
 	<library id="jdbcLib">
 		<fileset dir="jdbc" includes="*.jar" />
+		
 	</library>
 
 
-	<dataSource jndiName="jdbc/image_model">
+	<dataSource jndiName="jdbc/image_model" id="datasourceConfig">
 		<jdbcDriver libraryRef="jdbcLib" />
 		<properties.postgresql serverName="localhost"
 			portNumber="5432" databaseName="image_server" user="casi"
@@ -26,10 +28,13 @@
 	<keyStore id="defaultKeyStore" password="password" />
 
 	<httpEndpoint id="defaultHttpEndpoint" host="*"
-		httpPort="8080" httpsPort="8443">
+		httpPort="9080" httpsPort="9443">
 	</httpEndpoint>
 
+	<webContainer
+	addStrictTransportSecurityHeader="max-age=63072000; includeSubDomains; preload" />
 
 	<webApplication location="image-server.war"
 		contextRoot="/" />
+
 </server>

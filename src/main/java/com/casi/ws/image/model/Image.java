@@ -7,11 +7,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity implementation class for Entity: Image
  *
  */
+
 @Entity(name = Image.NAME)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "ownerKey", "ownerClass" }))
 public class Image implements Serializable {
@@ -23,12 +25,14 @@ public class Image implements Serializable {
 	private Integer id;
 
 	@Lob
+	@NotNull
 	private byte[] data;
 
 	private String fileName;
 	private String ownerKey;
 	private String fileType;
 
+	@NotNull
 	private String ownerClass;
 
 	public Image() {
