@@ -32,6 +32,7 @@ public class UploadResource {
 		ImageFormat format = ImageFormatDetector.detect(file);
 		boolean isInvalidFormat = format.equals(ImageFormat.UNKNOWN);
 
+	
 		if (isInvalidFormat) {
 			return Response.status(Response.Status.EXPECTATION_FAILED).entity("Invalid Format").build();
 		}
