@@ -35,6 +35,7 @@ public class UploadResource {
 		if (isInvalidFormat) {
 			return Response.status(Response.Status.EXPECTATION_FAILED).entity("Invalid Format").build();
 		}
+
 		Image n = new Image();
 		n.setFileName("Document_type_" + LocalDateTime.now().toString());
 		n.setData(file);
@@ -49,8 +50,5 @@ public class UploadResource {
 		}
 		return Response.status(Response.Status.BAD_REQUEST).entity("Persist unsuccessfully").build();
 	}
-	
-
-	
 
 }
