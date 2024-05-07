@@ -22,6 +22,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import com.casi.ws.image.constant.Constant;
@@ -33,6 +34,7 @@ public class EndpointTest {
 
 	/* upload image */
 	@Test
+	@Order(1)
 	public void uploadImageResponse() throws URISyntaxException, IOException, InterruptedException,
 			NoSuchAlgorithmException, KeyManagementException {
 
@@ -108,6 +110,7 @@ public class EndpointTest {
 	
 	
 	@Test
+	@Order(2)
 	public void fetchImageBytes() throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, InterruptedException
 	{
 		TrustManager dummyTrust = new X509ExtendedTrustManager() {
@@ -160,7 +163,7 @@ public class EndpointTest {
 		
 		String endPoint = "/verify/{ownerClass}/image/data/{ownerKey}";
 		
-		endPoint = endPoint.replace("{ownerClass}", "x-act").replace("{ownerKey}", "2");
+		endPoint = endPoint.replace("{ownerClass}", "x-act").replace("{ownerKey}", "1");
 		
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
@@ -261,5 +264,94 @@ public class EndpointTest {
 		
 
 	}
+	
+	
+	@Test
+	public void bulkUploadImageResponse() throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, InterruptedException {
+		var body = new MultipartFormDataBodyPublisher().add("ownerClass", "x-act").add("ownerKey", "1").addFile("data",
+				Path.of("/home/tant/Downloads/cat.jpg"));
+		
+//		for trusting ssl self signed certificate
+		TrustManager dummyTrust = new X509ExtendedTrustManager() {
 
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return new java.security.cert.X509Certificate[0];
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
+					throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
+					throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
+					throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
+					throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+		};
+
+		
+		int countSuccess = 0;
+		
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
+
+		HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
+
+		HttpRequest request ;
+
+		HttpResponse response ;
+		
+		MultipartFormDataBodyPublisher body1 ;
+		
+		for(int i = 0 ;i<100;++i)
+		{
+			body1 = new MultipartFormDataBodyPublisher().add("ownerClass", "x-act").add("ownerKey", String.valueOf(i)).addFile("data",
+					Path.of("/home/tant/Downloads/cat.jpg"));
+			
+			request = HttpRequest.newBuilder(new URI("https://localhost:9443/upload"))
+					.header("Content-Type", body1.contentType()).header("Authorization", "X-Act " + Constant.API_KEY)
+					.POST(body1).build();
+			
+			response = client.send(request, BodyHandlers.discarding());
+			if(response.statusCode() == 201)
+			{
+				countSuccess++;
+			}
+
+		}
+		
+		
+		assertTrue(countSuccess== 100);
+	}
 }
