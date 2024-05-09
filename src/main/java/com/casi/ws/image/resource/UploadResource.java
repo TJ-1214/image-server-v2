@@ -29,6 +29,8 @@ public class UploadResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response create(@FormParam("ownerClass") EntityPart ownerClass, @FormParam("ownerKey") EntityPart ownerKey,
 			@FormParam("data") EntityPart data) throws IOException {
+		
+
 		byte[] file = data.getContent().readAllBytes();
 		ImageFormat format = ImageFormatDetector.detect(file);
 		boolean isInvalidFormat = format.equals(ImageFormat.UNKNOWN);
@@ -36,7 +38,7 @@ public class UploadResource {
 		if (isInvalidFormat) {
 			return Response.status(Response.Status.EXPECTATION_FAILED).entity("Invalid Format").build();
 		}
-		System.out.println("original Size: " + file.length);
+	
 
 		Image n = new Image();
 		n.setFileName("Document_type_" + LocalDateTime.now().toString());
@@ -44,9 +46,6 @@ public class UploadResource {
 		n.setOwnerClass(ownerClass.getContent(String.class));
 		n.setOwnerKey(ownerKey.getContent(String.class));
 		n.setFileType(format.name());
-
-	
-		System.out.println(n.getFileType()+ " compressed Size: " + n.getData().length);
 
 		boolean isPersist = imageDao.newImage(n);
 
