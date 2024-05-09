@@ -7,6 +7,7 @@ import com.casi.ws.image.dao.ImageDao;
 import com.casi.ws.image.model.Image;
 import com.casi.ws.image.util.ImageFormat;
 import com.casi.ws.image.util.ImageFormatDetector;
+import com.casi.ws.image.util.ImageUtil;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -32,17 +33,20 @@ public class UploadResource {
 		ImageFormat format = ImageFormatDetector.detect(file);
 		boolean isInvalidFormat = format.equals(ImageFormat.UNKNOWN);
 
-	
 		if (isInvalidFormat) {
 			return Response.status(Response.Status.EXPECTATION_FAILED).entity("Invalid Format").build();
 		}
+		System.out.println("original Size: " + file.length);
 
 		Image n = new Image();
 		n.setFileName("Document_type_" + LocalDateTime.now().toString());
-		n.setData(file);
+		n.setData(ImageUtil.compress(file)  );
 		n.setOwnerClass(ownerClass.getContent(String.class));
 		n.setOwnerKey(ownerKey.getContent(String.class));
 		n.setFileType(format.name());
+
+	
+		System.out.println(n.getFileType()+ " compressed Size: " + n.getData().length);
 
 		boolean isPersist = imageDao.newImage(n);
 
@@ -51,5 +55,8 @@ public class UploadResource {
 		}
 		return Response.status(Response.Status.BAD_REQUEST).entity("Persist unsuccessfully").build();
 	}
+	
+	
+	
 
 }
