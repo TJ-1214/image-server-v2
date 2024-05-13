@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 
 import com.casi.ws.image.dao.ImageDao;
 import com.casi.ws.image.model.Image;
-import com.casi.ws.image.util.ImageFormat;
-import com.casi.ws.image.util.ImageFormatDetector;
-import com.casi.ws.image.util.ImageUtil;
 
+import io.image.util.Format;
+import io.image.util.ImageUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -32,21 +31,25 @@ public class UploadResource {
 		
 
 		byte[] file = data.getContent().readAllBytes();
-		ImageFormat format = ImageFormatDetector.detect(file);
-		boolean isInvalidFormat = format.equals(ImageFormat.UNKNOWN);
-
+		Format format = ImageUtil.format(file);
+		
+		boolean isInvalidFormat = format.equals(Format.UNKNOWN);
+		
+		System.out.println("raw size: "+file.length);
 		if (isInvalidFormat) {
+			
 			return Response.status(Response.Status.EXPECTATION_FAILED).entity("Invalid Format").build();
 		}
 	
 
 		Image n = new Image();
 		n.setFileName("Document_type_" + LocalDateTime.now().toString());
-		n.setData(ImageUtil.compress(file)  );
+		n.setData(ImageUtil.compress(file));
 		n.setOwnerClass(ownerClass.getContent(String.class));
 		n.setOwnerKey(ownerKey.getContent(String.class));
 		n.setFileType(format.name());
 
+		System.out.println("compressed size: "+n.getData().length );
 		boolean isPersist = imageDao.newImage(n);
 
 		if (isPersist) {

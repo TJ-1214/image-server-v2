@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ws</groupId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 	<packaging>war</packaging>
 
 	<name>image-server</name>
@@ -50,11 +50,18 @@
 			<scope>test</scope>
 		</dependency>
 
+<dependency>
+    <groupId>io.tj</groupId>
+    <artifactId>io.image</artifactId>
+    <version>1.0.1</version>
+</dependency>
+
 		<dependency>
 			<groupId>io.github.yskszk63</groupId>
 			<artifactId>jnhttp-multipartformdata-bodypublisher</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>
