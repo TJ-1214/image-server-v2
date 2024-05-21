@@ -18,6 +18,42 @@ To integrate the Image Server into your project, add the following dependency:
 </dependency>
 ```
 
+## Dependencies
+To integrate the Image Server into your project, add the following dependency:
+```xml
+<dependency>
+    <groupId>io.tj</groupId>
+    <artifactId>io.image</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
+
+## Before Running the Application
+
+Before running the Image Server application, make sure to complete the following steps:
+
+1. **Install PostgreSQL:**
+   PostgreSQL must be installed on your machine. You can download PostgreSQL from [here](https://www.postgresql.org/download/). Choose the appropriate download based on your operating system.
+
+2. **Configure Server XML:**
+   Open the `server.xml` file located under the folder `src/main/liberty/config/`. Replace the following credentials with your PostgreSQL database connection details:
+   - `serverName`
+   - `portNumber`
+   - `user`
+   - `password`
+
+   These configurations are necessary to establish a connection with the PostgreSQL database where image data will be stored.
+
+ On main project folder, execute `chmod +x mvnw`.
+
+```
+./mvnw liberty:dev
+```
+
+---
+
+   
+
 ## Endpoints
 ### Retrieve Image
 - **Endpoint:** `GET /{ownerClass}/image/{ownerKey}`
@@ -45,13 +81,7 @@ The Image Server is designed to be deployed on an OpenLiberty container. Simply 
 ## Note
 Ensure that the `io.image` library version 1.0.1 is included in your project's dependencies to utilize the Image Server's functionality effectively.
 
-You may first need to execute `chmod +x mvnw`.
 
-```
-./mvnw liberty:dev
-```
-
----
 
 # Persist Image
 
