@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -29,10 +30,12 @@ public class Image implements Serializable {
 	private byte[] data;
 
 	private String fileName;
+
+	@NotBlank
 	private String ownerKey;
 	private String fileType;
 
-	@NotNull
+	@NotBlank
 	private String ownerClass;
 
 	public Image() {

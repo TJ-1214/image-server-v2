@@ -24,7 +24,7 @@ public class AuthorizationInterceptor implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 
 		String header = requestContext.getHeaderString("Authorization");
-
+		
 		if (header == null) {
 			requestContext.abortWith(
 					Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized: header is missing").build());
@@ -39,17 +39,10 @@ public class AuthorizationInterceptor implements ContainerRequestFilter {
 
 		if (header != null && header.startsWith("Bearer")) {
 			header = header.replaceAll("(Bearer|\\s)", "");
-			JwtConsumer consume = null;
-			try {
-				consume = JwtConsumer.create();
-			} catch (InvalidConsumerException e) {
-				requestContext.abortWith(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-						.entity("Server Error: Header Error").build());
-			}
+		
 			try {
 				
-				JwtToken token = consume.createJwt(header);
-				System.out.println(token);
+				JwtToken token = JwtConsumer.create().createJwt(header);
 				Claims claims = token.getClaims();
 
 			
@@ -63,9 +56,14 @@ public class AuthorizationInterceptor implements ContainerRequestFilter {
 				}
 				
 
-			} catch (InvalidTokenException | InvalidConsumerException e) {
+			} catch (InvalidTokenException e  ) {
+				
 				requestContext.abortWith(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
 						.entity("Server Error: Invalid Token").build());
+			}catch(InvalidConsumerException e)
+			{
+				requestContext.abortWith(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+						.entity("Server Error: Invalid Consumer").build());
 			}
 
 		}

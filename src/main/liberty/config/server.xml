@@ -7,20 +7,15 @@
 		<feature>jwt-1.0</feature>
 	</featureManager>
 
-	<keyStore id="selfKeyStore" password="holdon"
+	<keyStore id="defaultKeyStore" password="holdon"
 		location="/opt/domain.p12" readOnly="true" />
 
-	<ssl id="selfSignedSSL" keyStoreRef="selfKeyStore" />
-	<sslDefault sslRef="selfSignedSSL" />
 	
 	
-	
-	<jwtBuilder id="keyGenerated"  trustStoreRef="selfKeyStore"
-	keyStoreRef="selfKeyStore" expiresInSeconds="120" />
-	
+	<jwtBuilder id="defaultJWT" issuer="https://image-server/jwt/defaultJWT"   />
 	
 	<!-- Need to define trusted issuer -->
-	<jwtConsumer id="defaultJwtConsumer" issuer="https://192.168.100.194:9443/jwt/keyGenerated" />
+	<jwtConsumer id="defaultJwtConsumer" issuer="https://image-server/jwt/defaultJWT" />
 	
 		 
 	<library id="jdbcLib">
@@ -31,6 +26,7 @@
 
 	<dataSource jndiName="jdbc/image_model"
 		id="datasourceConfig">
+		<connectionManager  minPoolSize="5"  purgePolicy="ValidateAllConnections"/>
 		<jdbcDriver libraryRef="jdbcLib" />
 		<properties.postgresql serverName="localhost"
 			portNumber="5432" databaseName="image_server" user="casi"
