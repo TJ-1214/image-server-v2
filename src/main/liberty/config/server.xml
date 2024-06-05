@@ -5,6 +5,7 @@
 		<feature>jdbc-4.3</feature>
 		<feature>transportSecurity-1.0</feature>
 		<feature>jwt-1.0</feature>
+		<feature>mpOpenAPI-3.1</feature>
 	</featureManager>
 
 	<keyStore id="defaultKeyStore" password="holdon"
