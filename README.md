@@ -83,64 +83,110 @@ Ensure that the `io.image` library version 1.0.1 is included in your project's d
 
 
 
-# Persist Image
 
-## Endpoint: `/upload`
+# Upload Image
+
+## Endpoint: `/v1/image/upload`
 - **Method:** `POST`
 - **Content-Type:** `multipart/form-data`
-- **Parameters:**
-  - `ownerClass`: The owner class of the image.
-  - `ownerKey`: The owner key of the image.
-  - `data`: The image file.
+- **Description:** Uploads a new image along with metadata.
+- **Request Parameters:**
+  - `ownerClass` (form parameter): The class of the owner of the image.
+  - `ownerKey` (form parameter): The key of the owner of the image.
+  - `data` (form parameter): The image file.
 - **Response:**
   - **Status 201 (Created):** Image uploaded successfully.
   - **Status 417 (Expectation Failed):** Invalid image format.
-  - **Status 400 (Bad Request):** Failed to upload image.
-- **Description:** This endpoint allows you to upload an image along with its metadata. Send a POST request with the image file and its associated metadata (owner class and owner key) as form data. The server will validate the image format and attempt to upload it. If successful, it will respond with a 201 status code. If the image format is invalid, it will return a 417 status code. If there's an issue with the request, it will return a 400 status code.
+  - **Status 500 (Internal Server Error):** Failed to upload image.
+- **Error Response:**
+  - **Status 500 (Internal Server Error):** If an unexpected error occurs during the upload process.
+- **Description:** This endpoint allows you to upload a new image along with its metadata. Send a POST request with the image file and its associated metadata (owner class and owner key) as form data. The server will process the uploaded file, validate its format, create an Image object with the provided metadata, and attempt to persist it. If successful, it will respond with a 201 status code. If the image format is invalid, it will return a 417 status code. If there's an issue with the request or the upload process, it will return a 500 status code.
 
-## Fetch Image
 
-### Endpoint: `GET /verify/{ownerClass}/image/data/{ownerKey}`
-- **Description:** Retrieves the binary data of an image record based on the owner class and owner key.
-- **Request Parameters:**
-  - `{ownerClass}` (path parameter, string): The class of the owner of the image.
-  - `{ownerKey}` (path parameter, string): The key of the owner of the image.
-- **Response:**
-  - **Content Type:** `application/octet-stream`
-  - **Body:** Binary data representing the image.
-- **Success Response:**
-  - **Status Code:** 200 OK
-  - **Body:** Binary data representing the image.
-- **Error Responses:**
-  - **Status Code:** 404 Not Found
-  - **Body:** Error message indicating that the requested image record was not found.
+# Verify Image
 
-### Endpoint: `GET /verify/{ownerClass}/image/{ownerKey}`
+## Endpoint: `/v1/image/verify/{ownerClass}/{ownerKey}`
+- **Method:** `GET`
+- **Produces:** `application/json`
 - **Description:** Retrieves an image record based on the owner class and owner key.
-- **Request Parameters:**
+- **Path Parameters:**
   - `{ownerClass}` (path parameter, string): The class of the owner of the image.
   - `{ownerKey}` (path parameter, string): The key of the owner of the image.
 - **Response:**
+  - **Status Code:** 200 OK
   - **Content Type:** `application/json`
   - **Body:** Image object representing the retrieved image record.
-- **Success Response:**
-  - **Status Code:** 200 OK
-  - **Body:** Image object representing the retrieved image record.
 - **Error Responses:**
   - **Status Code:** 404 Not Found
-  - **Body:** Error message indicating that the requested image record was not found.
+  - **Description:** If the requested image record was not found, it returns a 404 status code.
 
-### Endpoint: `GET /verify/{ownerClass}/images`
+## Endpoint: `/v1/image/verify/data/{ownerClass}/{ownerKey}`
+- **Method:** `GET`
+- **Produces:** `application/octet-stream`
+- **Description:** Retrieves the binary data of an image record based on the owner class and owner key.
+- **Path Parameters:**
+  - `{ownerClass}` (path parameter, string): The class of the owner of the image.
+  - `{ownerKey}` (path parameter, string): The key of the owner of the image.
+- **Response:**
+  - **Status Code:** 200 OK
+  - **Content Type:** `application/octet-stream`
+  - **Body:** Binary data representing the image.
+- **Error Responses:**
+  - **Status Code:** 404 Not Found
+  - **Description:** If the requested image record was not found, it returns a 404 status code.
+
+## Endpoint: `/v1/images/verify/{ownerClass}`
+- **Method:** `GET`
+- **Produces:** `application/json`
 - **Description:** Retrieves a list of image keys associated with a specific owner class.
-- **Request Parameters:**
+- **Path Parameters:**
   - `{ownerClass}` (path parameter, string): The class of the owner of the image.
 - **Response:**
-  - **Content-Type:** `application/json`
+  - **Status Code:** 200 OK
+  - **Content Type:** `application/json`
   - **Body:** A JSON array containing image keys.
-- **Status Codes:**
-  - **200 OK:** Returned on successful retrieval of image keys.
-  - **404 Not Found:** If no images are found for the specified owner class.
-  - **500 Internal Server Error:** If an unexpected error occurs during the process.
+- **Error Responses:**
+  - **Status Code:** 500 Internal Server Error
+  - **Description:** If an unexpected error occurs during the process, it returns a 500 status code.
+
+
+
+  
+# Update Image
+
+## Endpoint: `/v1/image/update/{ownerClass}/{ownerKey}`
+- **Method:** `PUT`
+- **Description:** Updates an existing image record based on the owner class and owner key.
+- **Path Parameters:**
+  - `{ownerKey}` (path parameter, string): The key of the owner of the image.
+  - `{ownerClass}` (path parameter, string): The class of the owner of the image.
+- **Request Body:**
+  - `data` (byte array): The updated image data.
+- **Response:**
+  - **Status 200 (OK):** Returned if the image is successfully updated.
+  - **Status 500 (Internal Server Error):** If an unexpected error occurs during the update process.
+- **Error Response:**
+  - **Status 500 (Internal Server Error):** If the image update fails unexpectedly.
+- **Usage:**
+  - Send a PUT request to the specified endpoint with the owner class and owner key as path parameters, and the updated image data in the request body. The server will attempt to find the existing image record based on the provided owner class and owner key, update its data with the provided data, and then update the image record in the database. If successful, it will respond with a 200 status code. If the update fails unexpectedly, it will return a 500 status code.
+
+  
+  # Delete Image
+
+## Endpoint: `/v1/image/delete/{ownerClass}/{ownerKey}`
+- **Method:** `DELETE`
+- **Description:** Deletes an image record based on the owner class and owner key.
+- **Path Parameters:**
+  - `{ownerKey}` (path parameter, string): The key of the owner of the image.
+  - `{ownerClass}` (path parameter, string): The class of the owner of the image.
+- **Response:**
+  - **Status 200 (OK):** Returned if the image is successfully deleted.
+  - **Status 500 (Internal Server Error):** If an unexpected error occurs during the deletion process.
+- **Error Response:**
+  - **Status 500 (Internal Server Error):** If the image deletion fails unexpectedly.
+- **Usage:**
+  - Send a DELETE request to the specified endpoint with the owner class and owner key as path parameters. The server will attempt to delete the image record associated with the provided owner class and owner key. If successful, it will respond with a 200 status code. If the deletion fails unexpectedly, it will return a 500 status code.
+
 
 ## Implementation Details
 
