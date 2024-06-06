@@ -19,6 +19,7 @@ public class ImageDao {
 	@PersistenceContext
 	private EntityManager em;
 
+	
 	public boolean newImage(Object obj) {
 		try {
 			em.persist(obj);
@@ -46,9 +47,24 @@ public class ImageDao {
 		}
 	}
 
+	
 	public boolean delete(Object obj) {
 		try {
-			em.remove(obj);
+
+			em.remove(em.merge(obj));
+			return true;
+		} catch (IllegalArgumentException e) {
+			return false;
+		} catch (TransactionRequiredException e) {
+			return false;
+		}
+
+	}
+	
+	public boolean delete(String oKey, String oClass) {
+		try {
+			
+			em.remove(find(oKey, oClass));
 			return true;
 		} catch (IllegalArgumentException e) {
 			return false;
