@@ -1,357 +1,139 @@
 package com.casi.ws.image.test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Path;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.Iterator;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509ExtendedTrustManager;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.casi.ws.image.constant.Constant;
+import com.casi.ws.image.dao.ImageDao;
+import com.casi.ws.image.model.Image;
 
-import io.github.yskszk63.jnhttpmultipartformdatabodypublisher.MultipartFormDataBodyPublisher;
-import jakarta.ws.rs.core.MediaType;
+import io.image.util.ImageUtil;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
+@RunWith(Arquillian.class)
 public class EndpointTest {
 
-	/* upload image */
-	@Test
-	@Order(1)
-	public void uploadImageResponse() throws URISyntaxException, IOException, InterruptedException,
-			NoSuchAlgorithmException, KeyManagementException {
 
-		var body = new MultipartFormDataBodyPublisher().add("ownerClass", "x-act").add("ownerKey", "1").addFile("data",
-				Path.of("/home/tant/Downloads/cat.jpg"));
-		
-//		for trusting ssl self signed certificate
-		TrustManager dummyTrust = new X509ExtendedTrustManager() {
+	@ArquillianResource
+	private URL baseURL;
 
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new java.security.cert.X509Certificate[0];
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-		};
-
-		
-		
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
-
-		HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
-
-		HttpRequest request = HttpRequest.newBuilder(new URI("https://localhost:9443/upload"))
-				.header("Content-Type", body.contentType()).header("Authorization", "X-Act " + Constant.API_KEY)
-				.POST(body).build();
-
-		HttpResponse<?> response = client.send(request, BodyHandlers.discarding());
-		assertTrue(response.statusCode() == 201);
-		
-		
 	
+	private String key;
+	@Inject
+	private ImageDao imageDao;
+
+	@Deployment(testable = true)
+	public static WebArchive createDeployment() {
+		WebArchive archive = ShrinkWrap
+				.create(WebArchive.class).addPackages(true, "com.casi.ws.image")
+				.addPackage(ImageUtil.class.getPackage())
+				.addAsResource("META-INF/persistence.xml");
+				
+		return archive;
 	}
 	
+	// A helper method to determine the image format
+    private  String getImageFormat(File file) throws IOException {
+        ImageInputStream iis = ImageIO.createImageInputStream(file);
+        Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+        if (!iter.hasNext()) {
+            return null;
+        }
+        ImageReader reader = iter.next();
+        iis.close();
+        return reader.getFormatName();
+    }
 	
+	@Before
 	@Test
-	@Order(2)
-	public void fetchImageBytes() throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, InterruptedException
+	@RunAsClient
+	public void keyGenerator()
 	{
-		TrustManager dummyTrust = new X509ExtendedTrustManager() {
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new java.security.cert.X509Certificate[0];
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-		};
-		
-		String endPoint = "/verify/{ownerClass}/image/data/{ownerKey}";
-		
-		endPoint = endPoint.replace("{ownerClass}", "x-act").replace("{ownerKey}", "1");
-		
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
-
-		HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
+		WebTarget target = ClientBuilder.newBuilder().build().target(baseURL+"/key");
+		Response response = target.request().get();
+	
+		key = response.readEntity(String.class);
 		
 		
-		HttpRequest request = HttpRequest.newBuilder(new URI("https://localhost:9443"+endPoint))
-				.header("Content-Type",MediaType.APPLICATION_JSON).header("Authorization", "X-Act " + Constant.API_KEY).GET().build();
-		
-		
-		HttpResponse<?> response = client.send(request,BodyHandlers.ofByteArray());
-		
-		String bytes = response.body().toString();
-		
-		
-		System.out.println(bytes);
-		assertTrue(response.statusCode() == 200);
+//		check if response is ok
+		Assert.assertEquals(200, response.getStatus());
 
-
-		
 	}
 	
+	
 	@Test
-	public void fetchImageKeys() throws NoSuchAlgorithmException, KeyManagementException, URISyntaxException, IOException, InterruptedException
+	@InSequence(1)
+	public void uploadImage() throws IOException, URISyntaxException
 	{
-		TrustManager dummyTrust = new X509ExtendedTrustManager() {
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new java.security.cert.X509Certificate[0];
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-		};
+		File file = new File("/home/tant/Pictures/catshit.png");
 		
-	String endPoint =	"/verify/{ownerClass}/images";
-		
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
-
-		endPoint =endPoint.replace("{ownerClass}", "x-act");
-		
-		
-		HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
-		
-		
-		HttpRequest request = HttpRequest.newBuilder(new URI("https://localhost:9443"+endPoint))
-				.header("Content-Type",MediaType.APPLICATION_JSON).header("Authorization", "X-Act " + Constant.API_KEY).GET().build();
-		
-		
-		HttpResponse<?> response = client.send(request,BodyHandlers.ofString());
-		
-		String json = response.body().toString();
-		
-		
-		System.out.println(json);
-		assertTrue(response.statusCode() == 200);
-		
-		
-
-	}
 	
+		
+		BufferedImage bufferedImage = ImageIO.read(file);
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	
+	
+		ImageIO.write(bufferedImage, getImageFormat(file), baos);
+		
+		baos.flush();
+		
+		byte[] data = baos.toByteArray();
+		
+		Image image = new Image();
+		
+		image.setFileName("test-picture-"+LocalDate.now());
+		image.setFileType(ImageUtil.format(data).toString());
+		image.setOwnerClass(Image.class.getSimpleName());
+		image.setOwnerKey("1");
+		image.setData(data);
+		
+		boolean isPersist = imageDao.newImage(image);
+		Assert.assertTrue( isPersist);
+		
+		
+		
+	}
 	
 	@Test
-	public void bulkUploadImageResponse() throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, InterruptedException {
-		var body = new MultipartFormDataBodyPublisher().add("ownerClass", "x-act").add("ownerKey", "1").addFile("data",
-				Path.of("/home/tant/Downloads/cat.jpg"));
+	@RunAsClient
+	@InSequence(2)
+	public void unathorizedAccess()
+	{
 		
-//		for trusting ssl self signed certificate
-		TrustManager dummyTrust = new X509ExtendedTrustManager() {
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new java.security.cert.X509Certificate[0];
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-
-			}
-		};
-
+		String context = "/v2/image/{id}";
 		
-		int countSuccess = 0;
+		context  = context.replace("{id}", "7466e566-3ecc-45c3-8705-5fbca8a36dd2");
 		
-		SSLContext sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(null, new TrustManager[] { dummyTrust }, new SecureRandom());
-
-		HttpClient client = HttpClient.newBuilder().sslContext(sslContext).build();
-
-		HttpRequest request ;
-
-		HttpResponse response ;
+		WebTarget target = ClientBuilder.newBuilder().build().target(baseURL+context);
+		Response response = target.request().get();
 		
-		MultipartFormDataBodyPublisher body1 ;
+		Assert.assertEquals(401, response.getStatus());
 		
-		for(int i = 0 ;i<100;++i)
-		{
-			body1 = new MultipartFormDataBodyPublisher().add("ownerClass", "x-act").add("ownerKey", String.valueOf(i)).addFile("data",
-					Path.of("/home/tant/Downloads/cat.jpg"));
-			
-			request = HttpRequest.newBuilder(new URI("https://localhost:9443/upload"))
-					.header("Content-Type", body1.contentType()).header("Authorization", "X-Act " + Constant.API_KEY)
-					.POST(body1).build();
-			
-			response = client.send(request, BodyHandlers.discarding());
-			if(response.statusCode() == 201)
-			{
-				countSuccess++;
-			}
-
-		}
-		
-		
-		assertTrue(countSuccess== 100);
 	}
+	
 }

@@ -47,7 +47,7 @@ public class ResourceHandler {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public void create(@FormParam("ownerClass") EntityPart ownerClass, @FormParam("ownerKey") EntityPart ownerKey,
 			@FormParam("data") EntityPart data, @Suspended AsyncResponse asyncResponse) {
-
+		
 		CompletableFuture.supplyAsync(() -> {
 			// Process the uploaded file
 			byte[] file = new byte[0];
@@ -88,6 +88,7 @@ public class ResourceHandler {
 		}).thenAcceptAsync(asyncResponse::resume);
 	}
 
+	@SuppressWarnings("deprecation")
 	@GET
 	@Path("/image/verify/{ownerClass}/{ownerKey}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -113,6 +114,7 @@ public class ResourceHandler {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	@GET
 	@Path("/image/verify/data/{ownerClass}/{ownerKey}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -160,6 +162,7 @@ public class ResourceHandler {
 		}).thenAccept(asyncResponse::resume);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@PUT
 	@Path("/image/update/{ownerClass}/{ownerKey}")
 	public void imageUpdate(@PathParam("ownerKey") String oKey,
@@ -167,6 +170,7 @@ public class ResourceHandler {
 							byte[] data,
 							@Suspended AsyncResponse asyncResponse)
 	{
+		
 		CompletableFuture.supplyAsync(() -> imageDao.find(oKey, oClass))
 				.thenAccept( result -> {
 						result.setData(data);
@@ -188,6 +192,7 @@ public class ResourceHandler {
 
 	}
 	
+	@SuppressWarnings("deprecation")
 	@DELETE
 	@Path("/image/delete/{ownerClass}/{ownerKey}")
 	public Response imageDelete(@PathParam("ownerKey") String oKey, @PathParam("ownerClass") String oClass) 

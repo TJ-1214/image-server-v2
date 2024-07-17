@@ -14,7 +14,7 @@ To integrate the Image Server into your project, add the following dependency:
 <dependency>
     <groupId>io.tj</groupId>
     <artifactId>io.image</artifactId>
-    <version>1.0.1</version>
+    <version>${image version}</version>
 </dependency>
 ```
 
@@ -24,7 +24,7 @@ To integrate the Image Server into your project, add the following dependency:
 <dependency>
     <groupId>io.tj</groupId>
     <artifactId>io.image</artifactId>
-    <version>1.0.1</version>
+    <version>${image version}</version>
 </dependency>
 ```
 
@@ -52,39 +52,214 @@ Before running the Image Server application, make sure to complete the following
 
 ---
 
+# Release Notes: Version 1.1.3 to 1.2.0
+
+## What's New?
+
+- Added integration tests for easier and more efficient testing.
+- Introduced new endpoints.
+- Supports multiple images under one owner key.
+- Optimized performance.
    
+   ---
 
-## Endpoints
-### Retrieve Image
-- **Endpoint:** `GET /{ownerClass}/image/{ownerKey}`
-  - Retrieves an image based on the owner class and key.
-### Save Image
-- **Endpoint:** `POST /upload`
-  - Saves an uploaded image along with metadata.
-### Image Format Validation
-- **Endpoint:** `POST /validate`
-  - Validates the format of an uploaded image.
-### Image Compression
-- **Endpoint:** `POST /compress`
-  - Compresses an image to optimize storage and transmission.
+#  Upload Image
+## Endpoint
 
-## Usage
-1. Send a GET request to retrieve an image.
-2. Upload an image using a POST request to save it.
-3. Use the validation endpoint to check the format of an image.
-4. Compress images to reduce their size.
+```
+POST v2/image/upload
+```
 
-## Deployment
-The Image Server is designed to be deployed on an OpenLiberty container. Simply package the application into a WAR file and deploy it to your OpenLiberty server.
+## Description
+
+Uploads an image with associated metadata.
+
+## Parameters
+- Media type : `Multipart form`
+- `ownerClass` (string): Class of the owner entity.
+- `ownerKey` (string): Key of the owner entity.
+- `data` (file): Image data in `multipart/form-data` format.
+
+## Response
+
+- **202 Accepted** - Image upload successful.
+  - Body: `"Image upload successful"`
+
+### Error Responses
+
+- **417 Expectation Failed** - Invalid image format.
+- **500 Internal Server Error** - Persistence error.
+
+---
+
+### Notes:
+- Ensure `data` parameter contains valid image data.
+- Handles various errors during upload and processing.
 
 
-## Note
-Ensure that the `io.image` library version 1.0.1 is included in your project's dependencies to utilize the Image Server's functionality effectively.
+# Bulk Image Upload API
+
+## Endpoint
+
+```
+POST v2/images/upload
+```
+
+## Description
+
+Uploads multiple images with associated metadata in bulk.
+
+## Parameters
+- Media type : `Multipart form`
+- `attachments` (multipart/form-data): List of attachments containing image data and optional text fields.
+
+## Response
+
+- **202 Accepted** - Bulk image upload successful.
+  - Body: `"Image upload successful"`
+
+- **400 Bad Request** - Image upload unsuccessful or invalid request.
+
+### Error Responses
+
+- **417 Expectation Failed** - Invalid image format detected.
+
+---
+
+
+
+## Update Image
+
+Updates an existing image.
+
+### Endpoint
+
+```
+PUT v2/image/update/{uniqueId}
+```
+
+### Parameters
+- Media type : `Multipart form`
+- `uniqueId` (path parameter): Unique identifier of the image.
+- `data` (request body): Updated image data as byte array.
+
+### Response
+
+- **202 Accepted** - Image update successful.
+  - Body: `"Image update successful"`
+
+- **400 Bad Request** - Image update unsuccessful or invalid request.
+
+### Error Responses
+
+- **417 Expectation Failed** - Invalid image format detected.
+
+---
+
+## Remove Image
+
+Removes an existing image.
+
+### Endpoint
+
+```
+DELETE v2/image/remove/{uniqueId}
+```
+
+### Parameters
+
+- `uniqueId` (path parameter): Unique identifier of the image to be removed.
+
+### Response
+
+- **202 Accepted** - Image removal successful.
+  - Body: `"Image removal successful"`
+
+- **400 Bad Request** - Image removal unsuccessful or invalid request.
+
+---
+
+## Get Image Keys by Owner
+
+Retrieves keys of all images belonging to a specific owner entity.
+
+### Endpoint
+
+```
+GET v2/images/keys/{ownerClass}/{ownerKey}
+```
+
+### Parameters
+
+- `ownerClass` (path parameter): Class of the owner entity.
+- `ownerKey` (path parameter): Key of the owner entity.
+
+### Response
+
+- **200 OK** - Keys retrieved successfully.
+  - Body: Comma-separated list of image keys.
+
+---
+
+## Get Image by ID
+
+Retrieves an image by its unique ID.
+
+### Endpoint
+
+```
+GET v2/image/{id}
+```
+
+### Parameters
+
+- `id` (path parameter): Unique identifier of the image.
+
+### Response
+
+- **200 OK** - Image retrieved successfully.
+  - Body: Image data as binary stream.
+
+- **404 Not Found** - Image with the given ID not found.
+
+---
+
+## Get Images by Owner
+
+Retrieves all images belonging to a specific owner entity.
+
+### Endpoint
+
+```
+GET v2/images/{ownerClass}/{ownerKey}
+```
+
+### Parameters
+
+- `ownerClass` (path parameter): Class of the owner entity.
+- `ownerKey` (path parameter): Key of the owner entity.
+
+### Response
+
+- **200 OK** - Images retrieved successfully.
+  - Body: Concatenated binary data of all images separated by a specified separator.
+
+--- 
+
+### Notes:
+- Adjust paths and parameters as per your application's endpoint configuration.
+- Ensure proper error handling and response codes are implemented for each endpoint.
+- Use appropriate content types (`multipart/form-data`, `application/octet-stream`, `text/plain`) for request and response payloads.
+
+---
 
 
 
 
-# Upload Image
+
+
+
+# Upload Image (Deprecated)
 
 ## Endpoint: `/v1/image/upload`
 - **Method:** `POST`
@@ -103,7 +278,7 @@ Ensure that the `io.image` library version 1.0.1 is included in your project's d
 - **Description:** This endpoint allows you to upload a new image along with its metadata. Send a POST request with the image file and its associated metadata (owner class and owner key) as form data. The server will process the uploaded file, validate its format, create an Image object with the provided metadata, and attempt to persist it. If successful, it will respond with a 201 status code. If the image format is invalid, it will return a 417 status code. If there's an issue with the request or the upload process, it will return a 500 status code.
 
 
-# Verify Image
+# Verify Image (Deprecated)
 
 ## Endpoint: `/v1/image/verify/{ownerClass}/{ownerKey}`
 - **Method:** `GET`
@@ -152,7 +327,7 @@ Ensure that the `io.image` library version 1.0.1 is included in your project's d
 
 
   
-# Update Image
+# Update Image (Deprecated)
 
 ## Endpoint: `/v1/image/update/{ownerClass}/{ownerKey}`
 - **Method:** `PUT`
@@ -171,7 +346,7 @@ Ensure that the `io.image` library version 1.0.1 is included in your project's d
   - Send a PUT request to the specified endpoint with the owner class and owner key as path parameters, and the updated image data in the request body. The server will attempt to find the existing image record based on the provided owner class and owner key, update its data with the provided data, and then update the image record in the database. If successful, it will respond with a 200 status code. If the update fails unexpectedly, it will return a 500 status code.
 
   
-  # Delete Image
+# Delete Image (Deprecated)
 
 ## Endpoint: `/v1/image/delete/{ownerClass}/{ownerKey}`
 - **Method:** `DELETE`
@@ -244,3 +419,14 @@ This API endpoint does not require authentication.
 ---
 
 Remember to replace `[base_url]` with the actual base URL where your API is deployed.
+
+
+### Notes:
+- Handles both image and text attachments in `multipart/form-data`.
+- Validates and processes each attachment for proper handling and storage.
+
+
+
+
+
+

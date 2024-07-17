@@ -21,13 +21,14 @@ public class KeyResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("key")
 	public void generatedKey(@Suspended AsyncResponse asyncResponse) {
+	
 		CompletableFuture.supplyAsync(() -> {
 			try {
 				return JwtBuilder.create().buildJwt().compact();
 			} catch (JwtException | InvalidBuilderException e) {
 				throw new RuntimeException(e);
 			}
-		}).thenApplyAsync(key -> {
+		}).thenApply(key -> {
 			// Handle the successful creation of the JWT key
 			return Response.ok(key).build();
 		}).exceptionally(throwable -> {

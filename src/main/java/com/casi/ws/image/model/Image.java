@@ -1,12 +1,13 @@
 package com.casi.ws.image.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,14 +17,15 @@ import jakarta.validation.constraints.NotNull;
  */
 
 @Entity(name = Image.NAME)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "ownerKey", "ownerClass" }))
+//@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "ownerKey", "ownerClass" }))
 public class Image implements Serializable {
 
 	public static final String NAME = "wsImage";
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
 	@Lob
 	@NotNull
@@ -33,6 +35,7 @@ public class Image implements Serializable {
 
 	@NotBlank
 	private String ownerKey;
+	
 	private String fileType;
 
 	@NotBlank
@@ -42,13 +45,19 @@ public class Image implements Serializable {
 		super();
 	}
 
-	public Integer getId() {
+	
+
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+
+
+	public void setId(UUID id) {
 		this.id = id;
 	}
+
+
 
 	public byte[] getData() {
 		return data;

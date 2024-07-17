@@ -6,13 +6,10 @@
 	<persistence-unit name="image-unit">
 		<jta-data-source>jdbc/image_model</jta-data-source>
 		<properties>
-
 			<property
 				name="jakarta.persistence.schema-generation.database.action"
-				value="drop-and-create" />
+				value="create" />
 		</properties>
-
-
 
 	</persistence-unit>
 </persistence>

@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <server description="defaultServer">
+
+	<!--The Liberty Maven Plugin has generated Liberty features necessary for your application in configDropins/overrides/generated-features.xml-->
 
 	<featureManager>
 		<feature>webProfile-10.0</feature>
@@ -6,51 +9,51 @@
 		<feature>transportSecurity-1.0</feature>
 		<feature>jwt-1.0</feature>
 		<feature>mpOpenAPI-3.1</feature>
+
+
+        <!--Enable the following features to run tests with Arquillian managed container-->
+        <feature>localConnector-1.0</feature>
+        <feature>servlet-6.0</feature>
+  
+
+
+		
 	</featureManager>
 
-	<keyStore id="defaultKeyStore" password="holdon"
-		location="/opt/domain.p12" readOnly="true" />
+	<keyStore id="defaultKeyStore" location="/opt/domain.p12" password="holdon" readOnly="true"/>
 
 	
 	
-	<jwtBuilder id="defaultJWT" issuer="https://image-server/jwt/defaultJWT"   />
+	<jwtBuilder expiresInSeconds="1800" id="defaultJWT" issuer="https://image-server/jwt/defaultJWT"/>
 	
 	<!-- Need to define trusted issuer -->
-	<jwtConsumer id="defaultJwtConsumer" issuer="https://image-server/jwt/defaultJWT" />
+	<jwtConsumer id="defaultJwtConsumer" issuer="https://image-server/jwt/defaultJWT"/>
 	
 		 
 	<library id="jdbcLib">
-		<fileset dir="jdbc" includes="*.jar" />
+		<fileset dir="jdbc" includes="*.jar"/>
 
 	</library>
 
 
-	<dataSource jndiName="jdbc/image_model"
-		id="datasourceConfig">
-		<connectionManager  minPoolSize="5"  purgePolicy="ValidateAllConnections"/>
-		<jdbcDriver libraryRef="jdbcLib" />
-		<properties.postgresql serverName="localhost"
-			portNumber="5432" databaseName="image_server" user="casi"
-			password="holdon" />
+	<dataSource id="datasourceConfig" jndiName="jdbc/image_model">
+		<connectionManager minPoolSize="5" purgePolicy="ValidateAllConnections"/>
+		<jdbcDriver libraryRef="jdbcLib"/>
+		<properties.postgresql databaseName="image_server" password="holdon" portNumber="5432" serverName="localhost" user="casi"/>
 	</dataSource>
 
-	<basicRegistry id="defaultBasicRegistry"
-		realm="BasicRealm">
-		<user name="username" password="password" />
+	<basicRegistry id="defaultBasicRegistry" realm="BasicRealm">
+		<user name="username" password="password"/>
 	</basicRegistry>
 
 
 
-
-	<httpEndpoint id="defaultHttpEndpoint" host="*"
-		httpPort="9080" httpsPort="9443">
+	<httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint">
 	</httpEndpoint>
 
-	<webContainer
-		addStrictTransportSecurityHeader="max-age=63072000; includeSubDomains; preload" />
+	<webContainer addStrictTransportSecurityHeader="max-age=63072000; includeSubDomains; preload"/>
 
-	<webApplication location="image-server.war"
-		contextRoot="/" />
+	<webApplication contextRoot="/" location="image-server.war"/>
 
 
 
