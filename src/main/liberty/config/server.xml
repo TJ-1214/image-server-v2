@@ -41,6 +41,10 @@
 		<jdbcDriver libraryRef="jdbcLib"/>
 		<properties.postgresql databaseName="image_server" password="holdon" portNumber="5432" serverName="localhost" user="casi"/>
 	</dataSource>
+	
+	
+
+
 
 	<basicRegistry id="defaultBasicRegistry" realm="BasicRealm">
 		<user name="username" password="password"/>

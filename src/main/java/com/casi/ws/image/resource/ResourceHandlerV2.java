@@ -1,6 +1,8 @@
 package com.casi.ws.image.resource;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.stream.Stream;
 import com.casi.ws.image.dao.ImageDao;
 import com.casi.ws.image.interceptor.AuthorizationFilter;
 import com.casi.ws.image.model.Image;
+import com.ibm.websphere.jaxrs20.multipart.AttachmentBuilder;
 import com.ibm.websphere.jaxrs20.multipart.IAttachment;
 
 import io.image.util.Format;
@@ -227,36 +230,40 @@ public class ResourceHandlerV2 {
 
 			}
 			
+			
+			@SuppressWarnings("unchecked")
 			@GET
 			@Path("/images/{ownerClass}/{ownerKey}")
-			@Produces(MediaType.APPLICATION_OCTET_STREAM)
+			@Produces(MediaType.MULTIPART_FORM_DATA)
 			public Response findImages(@PathParam("ownerClass") String ownerClass,
 			                           @PathParam("ownerKey") String ownerKey) {
-			    String separator = "\n--image-separator--\n";
+			    
+				
+				
+				List<IAttachment> attachments = new ArrayList<>();
+				
+				
 			   
 			    // Assuming imageDao returns Stream<Image>
-			    Stream  images = imageDao.findImages(ownerKey, ownerClass);
+			    @SuppressWarnings("rawtypes")
+				Stream  images = imageDao.findImages(ownerKey, ownerClass);
+			    
+			    
+				images.forEach(imageStream -> {
+					Image image = (Image) imageStream;
 
+					InputStream readImage = new ByteArrayInputStream(image.getData());
+					attachments.add(AttachmentBuilder.newBuilder(image.getFileName())
+							.contentType(MediaType.APPLICATION_OCTET_STREAM_TYPE)
+							.inputStream(readImage).build());
+				});
 			   
-			    StreamingOutput output = new StreamingOutput() {
-			        @Override
-			        public void write(OutputStream outputStream) throws IOException, WebApplicationException {
-			            // Use try-with-resources to ensure the stream is properly closed
-			            try (Stream<Image> stream = images) {
-			                stream.forEach(image -> {
-			                    try {
-			                        outputStream.write(image.getData());
-			                        outputStream.write(separator.getBytes());
-			                    } catch (IOException e) {
-			                        throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-			                    }
-			                });
-			                outputStream.flush();
-			            }
-			        }
-			    };
+				
+				
+			   
+			    
 
-			    return Response.ok().entity(output).build();
+			    return Response.ok().entity(attachments).build();
 			}
 
     }
