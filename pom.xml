@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ws2</groupId>
@@ -7,9 +9,24 @@
 	<version>0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- https://mvnrepository.com/artifact/org.junit/junit-bom -->
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>5.11.4</version>
+				<type>pom</type>
+				<scope>test</scope>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
 	<name>image-server</name>
 	<description>
-		Image Server 
+		Image Server
 	</description>
 
 	<properties>
@@ -32,31 +49,39 @@
 		</dependency>
 
 
-<!--resteasy dependencies-->
-<dependency>
-    <groupId>org.jboss.resteasy</groupId>
-    <artifactId>resteasy-jaxrs</artifactId>
-    <version>3.15.6.Final</version>
-</dependency>
+		<!--junit5 dependencies-->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-<dependency>
-    <groupId>org.jboss.resteasy</groupId>
-    <artifactId>resteasy-client</artifactId>
-    <version>6.2.11.Final</version>
-</dependency>
 
-<dependency>
-    <groupId>org.jboss.resteasy</groupId>
-    <artifactId>resteasy-multipart-provider</artifactId>
-    <version>6.2.11.Final</version>
-</dependency>
 
+		<!--resteasy dependencies-->
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>3.15.6.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<version>6.2.11.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>6.2.11.Final</version>
+		</dependency>
 
 
 	</dependencies>
 
 	<build>
-		<finalName>image-server</finalName>
+		<finalName>${project.groupId}.${project.artifactId}.${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -79,6 +104,13 @@
 				<configuration>
 					<version>${wildfly.version}</version>
 					<server-config>standalone.xml</server-config>
+
+					<discoverProvisioningInfo>
+						<addOns>
+							<addOn>postgresql:default</addOn>
+
+						</addOns>
+					</discoverProvisioningInfo>
 				</configuration>
 			</plugin>
 		</plugins>

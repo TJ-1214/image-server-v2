@@ -1,5 +1,6 @@
 package ws2.image.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -101,7 +102,36 @@ public class ImageDao {
 			return null;
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param ownerClass - String
+	 * @return List of image objects
+	 */
+	public List<Image> findAll(String ownerClass) {
+		try {
+			return em.createQuery("select u from " + Image.NAME + " u where u.ownerClass = :ownerClass", Image.class)
+					.setParameter("ownerClass", ownerClass).getResultList();
+		} catch (IllegalArgumentException e) {
+			return new ArrayList<>();
+		}
+	}
+	
+	/**
+	 * 
+	 * @param oClass
+	 * @param oKey
+	 * @return List Image Objects
+	 */
+	public List<Image> findAll(String oClass, String oKey) {
+		try {
+			return em.createQuery(
+					"select u from " + Image.NAME + " u where u.ownerKey = :oKey and u.ownerClass = :oClass",
+					Image.class).setParameter("oKey", oKey).setParameter("oClass", oClass).getResultList();
+		} catch (IllegalArgumentException e) {
+			return new ArrayList<>();
+		}
+	}
 	/**
 	 * 
 	 * @return Image objects
