@@ -10,6 +10,7 @@
 	<packaging>war</packaging>
 
 
+
 	<dependencyManagement>
 		<dependencies>
 			<!-- https://mvnrepository.com/artifact/org.junit/junit-bom -->
@@ -57,25 +58,21 @@
 			<artifactId>junit-jupiter-api</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-
-		<!--resteasy dependencies-->
+		<!--
+		https://mvnrepository.com/artifact/org.jboss.resteasy.microprofile/microprofile-rest-client -->
 		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<version>3.15.6.Final</version>
+			<groupId>org.jboss.resteasy.microprofile</groupId>
+			<artifactId>microprofile-rest-client</artifactId>
+			<version>2.1.5.Final</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-client</artifactId>
-			<version>6.2.11.Final</version>
-		</dependency>
+
+
 
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-multipart-provider</artifactId>
-			<version>6.2.11.Final</version>
+			<version>6.2.1.Final</version>
 		</dependency>
 
 
@@ -94,6 +91,7 @@
 				<version>${war-plugin.version}</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<outputDirectory>${env.JBOSS_HOME}/standalone/deployments</outputDirectory>
 				</configuration>
 			</plugin>
 
@@ -102,17 +100,28 @@
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-maven-plugin</artifactId>
 				<version>${wildfly-plugin.version}</version>
+
 				<configuration>
+					<jbossHome>${env.JBOSS_HOME}</jbossHome>
+					<serverConfig>standalone.goverifyph.xml</serverConfig>
 					<version>${wildfly.version}</version>
-					<server-config>standalone.xml</server-config>
+					<!--<discoverProvisioningInfo>
+						<addOns>
+							<addOn>postgresql</addOn>
+						</addOns>
+
+
+					</discoverProvisioningInfo>
+
 					<env>
-						<POSTGRESQL_JNDI>java:jboss/jsr352/batch_db</POSTGRESQL_JNDI>
-						<POSTGRESQL_DATABASE>batch_db</POSTGRESQL_DATABASE>
-						<POSTGRESQL_PASSWORD>123</POSTGRESQL_PASSWORD>
+						<POSTGRESQL_JNDI>java:jboss/image_model</POSTGRESQL_JNDI>
+						<POSTGRESQL_DATABASE>image_server</POSTGRESQL_DATABASE>
+						<POSTGRESQL_PASSWORD>holdon</POSTGRESQL_PASSWORD>
+
 						<POSTGRESQL_URL>
-							jdbc:postgresql://localhost:5432/batch_db</POSTGRESQL_URL>
-						<POSTGRESQL_USER>batch_user</POSTGRESQL_USER>
-					</env>
+							jdbc:postgresql://localhost:5432/image_server</POSTGRESQL_URL>
+						<POSTGRESQL_USER>casi</POSTGRESQL_USER>
+					</env>-->
 
 				</configuration>
 			</plugin>

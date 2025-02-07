@@ -2,7 +2,7 @@
 	xmlns="https://jakarta.ee/xml/ns/jakartaee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
-	<security-constraint>
+	<!-- <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Image Server Security</web-resource-name>
 			<url-pattern>/*</url-pattern>
@@ -10,7 +10,7 @@
 		<user-data-constraint>
 			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
 		</user-data-constraint>
-	</security-constraint>
+	</security-constraint> -->
 	
 	
 </web-app>

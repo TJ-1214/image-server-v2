@@ -45,8 +45,9 @@ public class ImageResource {
 		// Retrieve the parts from the multipart form data.
 		Map<String, List<InputPart>> formParts = input.getFormDataMap();
 
+	
 		// Retrieve the ownerClass field.
-		String ownerClass;
+				String ownerClass;
 		try {
 			ownerClass = formParts.get("ownerClass").get(0).getBodyAsString();
 		} catch (Exception e) {
@@ -126,7 +127,7 @@ public class ImageResource {
 
 	}
 
-	@Path("/image/update")
+	@Path("/image/update/{uniqueId}")
 	@PUT
 	public Response update(@PathParam("uniqueId") String uniqueId, byte[] data) {
 		Image image = imageDao.find(uniqueId);
@@ -144,7 +145,7 @@ public class ImageResource {
 		return Response.status(Response.Status.BAD_REQUEST).entity("Image update unsuccesful").build();
 	}
 
-	@Path("/image/remove")
+	@Path("/image/remove/{uniqueId}")
 	@DELETE
 	public Response remove(@PathParam("uniqueId") String uniqueId) {
 		Image image = imageDao.find(uniqueId);
@@ -184,6 +185,10 @@ public class ImageResource {
 	public Response findKeys(@PathParam("ownerClass") String ownerClass, @PathParam("ownerKey") String ownerKey) {
 		List<Image> images = imageDao.findAll(ownerClass, ownerKey);
 		List<String> keys = new ArrayList<>();
+
+		if (images.isEmpty()) {
+			return Response.status(Response.Status.NO_CONTENT).entity("No image/s found").build();
+		}
 
 		if (images != null && !images.isEmpty()) {
 			images.forEach(i -> keys.add(i.getId().toString()));
